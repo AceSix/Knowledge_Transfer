@@ -4,7 +4,7 @@
 ###   @Author: Ziang Liu
 ###   @Date: 2020-12-16 14:31:03
 ###   @LastEditors: Ziang Liu
-###   @LastEditTime: 2020-12-21 15:49:48
+###   @LastEditTime: 2020-12-21 16:40:39
 ###   @Copyright (C) 2020 SJTU. All rights reserved.
 ###################################################################
 
@@ -39,11 +39,10 @@ def batch_similarity(x, y, norm=True):
         return F.conv1d(x, y, stride=1)
 
 class Swap(object):
-    def __init__(self, exp_bank_dir, style_dir, device):
+    def __init__(self, exp_bank_dir, device):
 
         self.Base = 'base'
         self.bank_dir = os.path.join(exp_bank_dir, 'S' + str(self.Base))
-        self.style_dir = style_dir
         self.exp_bank_dir = exp_bank_dir
 
         self.wave_level = 1
@@ -51,8 +50,8 @@ class Swap(object):
 
         self.device = device
         
-    def choose_bank(self, kernel_size = 2, stride_size = 1, clusters_num = 50, S = 'patchsize7', H_weight = 1.0):
-        print(f"[Original]-[kernel_size]-[{kernel_size}]-[cluster]-[{clusters_num}]-[S]-[{S}]")
+    def choose_bank(self, kernel_size = 2, stride_size = 1, clusters_num = 50, S = '1'):
+        print(f"[kernel_size]-[{kernel_size}]-[cluster]-[{clusters_num}]-[S]-[{S}]")
         self.stylepath = os.path.join(self.exp_bank_dir, 'S' + str(S))
         self.bankpath = os.path.join(self.stylepath, f"C{clusters_num}-K{kernel_size}")
 
@@ -60,7 +59,6 @@ class Swap(object):
         self.stride = stride_size
         self.S = S
         self.clusters_num = clusters_num
-        self.H_weight = H_weight
 
         self.dict = {}
         files = glob.glob(self.bankpath+"/*-*-*subset.pkl") + glob.glob(self.bankpath+"/*centers.pkl")
@@ -78,13 +76,10 @@ class Swap(object):
 
         t0 = time.time()
         cf_query, cf_wave, original_shape = self.__query_prepare__(cf)
-        # memory_cost1 = get_memory()
 
         filename = '1_centers.pkl'
         init_centers = self.dict[filename].to(self.device)
         cs_total, choice_total = self.__query__(cf_query, cf_wave, 1, layer_num, init_centers, '1')
-
-        # memory_cost2 = get_memory()
 
         if stat:
             mu_cf = cf_query.mean(2, keepdim=True)
@@ -93,7 +88,6 @@ class Swap(object):
             std_out = cs_total.std(2, keepdim=True)
             mid = (cf_query - mu_cf)/std_cf
             cs_total = mid*std_out+mu_out
-        # memory_cost3 = get_memory()
         
         fn_fold = nn.Fold(original_shape[-2:], kernel_size=self.kernel*2, stride=self.stride*2)
         fn_unfold = nn.Unfold(kernel_size=self.kernel*2, stride=self.stride*2)

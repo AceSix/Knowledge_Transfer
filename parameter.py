@@ -4,7 +4,7 @@
 ###   @Author: Ziang Liu
 ###   @Date: 2020-12-16 14:38:14
 ###   @LastEditors: Ziang Liu
-###   @LastEditTime: 2020-12-16 15:29:59
+###   @LastEditTime: 2020-12-21 16:30:14
 ###   @Copyright (C) 2020 SJTU. All rights reserved.
 ###################################################################
 
@@ -20,9 +20,10 @@ def getParameters():
     # Basic information
     parser.add_argument('--content', type=str, default='AE', choices=['AE', 'bank'])
     parser.add_argument('--cuda_id', type=int, default=0)
+    parser.add_argument('--version', type=str, default='AE')
 
     # Bank setting
-    parser.add_argument('--S', type=list, default=['patchsize13'], nargs='+')
+    parser.add_argument('--S', type=list, default=['1'], nargs='+')
     parser.add_argument('--kernel_size', type=int, default=2)
 
     # AE training setting

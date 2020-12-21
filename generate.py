@@ -4,7 +4,7 @@
 ###   @Author: Ziang Liu
 ###   @Date: 2020-12-21 15:19:25
 ###   @LastEditors: Ziang Liu
-###   @LastEditTime: 2020-12-21 15:31:18
+###   @LastEditTime: 2020-12-21 16:39:50
 ###   @Copyright (C) 2020 SJTU. All rights reserved.
 ###################################################################
 
@@ -21,7 +21,7 @@ from components import Swap
 
 def load_PIL(image_path, size, ratio = 1.2):
     trans = transforms.Compose([
-                transforms.Resize(size*ratio),
+                transforms.Resize(int(size*ratio)),
                 transforms.RandomCrop(size),
                 transforms.ToTensor(),
             ])
@@ -37,20 +37,24 @@ def tensor_to_PIL(tensor):
     image = transforms.ToPILImage()(image)
     return image
 
+def str2bool(v):
+    return v.lower() in ('true')
+    
 def getParameters():
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--cuda_id', type=int, default=0)
 
-    parser.add_argument('--S', type=str, default='patchsize13')
+    parser.add_argument('--S', type=str, default='1')
     parser.add_argument('--kernel_size', type=int, default=2)
-    parser.add_argument('--stride_size', type=int, default=2)
+    parser.add_argument('--stride_size', type=int, default=1)
     parser.add_argument('--image_size', type=int, default=512)
+    parser.add_argument('--statistic', type=str2bool, default=True)
 
-    parser.add_argument('--decoder_checkpoint', type=str, default='./logs/decoder.py')
+    parser.add_argument('--decoder_checkpoint', type=str, default='./logs/decoder.pth')
     parser.add_argument('--vgg_checkpoint', type=str, default='./logs/vgg_normalised.pth')
 
-    parser.add_argument('--input_dir', type=str, default='./contents')
+    parser.add_argument('--input_dir', type=str, default='./content')
     parser.add_argument('--output_dir', type=str, default='./output')
     parser.add_argument('--bank_dir', type=str, default='./bank')
     
@@ -63,17 +67,19 @@ if __name__ == "__main__":
     style = config.S
     
     device = torch.device(f'cuda:{config.cuda_id}')
+
+    if not os.path.exists(config.output_dir):
+        os.makedirs(config.output_dir)
     
     encoder = GetVGGModel(config.vgg_checkpoint, 21).to(device)
     decoder = Decoder().to(device)
-    decoder.load_state_dict(torch.load('./selu.pth', map_location=device))
+    decoder.load_state_dict(torch.load(config.decoder_checkpoint, map_location=device))
     
     def generate(feature, method):
         with torch.no_grad():
-            sf_patch, sf_stat = method.wavelet_swap_LSH(feature, 2, True, True)
-            out1 = decoder(sf_patch)
-            out2 = decoder(sf_stat)
-        return out1, out2
+            sf, _, _ = method.wavelet_swap_LSH(cf=feature, stat=config.statistic)
+            out = decoder(sf)
+        return out
     
     swap = Swap(config.bank_dir, device)
     swap.choose_bank(kernel_size=2, clusters_num=10, S=style)
@@ -81,9 +87,9 @@ if __name__ == "__main__":
     
     for content in tqdm(contents):
         feature = encoder(load_PIL(content, config.image_size, 1.0))
-        stylized_patch, stylized_stat = generate(feature, swap)
+        stylized = generate(feature, swap)
 
-        tensor_to_PIL(stylized_stat).save(os.path.join(config.output_dir, f"{style}-{os.path.basename(content).replace('.jpg', '')}-stat.png"))
-        tensor_to_PIL(stylized_patch).save(os.path.join(config.output_dir, f"{style}-{os.path.basename(content).replace('.jpg', '')}-patch.png"))
-    
+        tensor_to_PIL(stylized).save(os.path.join(config.output_dir, 
+                                    f"{style}-{os.path.basename(content).replace('.jpg', '')}-{config.statistic}.png"))
+        
     

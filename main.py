@@ -4,7 +4,7 @@
 ###   @Author: Ziang Liu
 ###   @Date: 2020-12-16 14:31:05
 ###   @LastEditors: Ziang Liu
-###   @LastEditTime: 2020-12-16 14:53:27
+###   @LastEditTime: 2020-12-21 16:23:48
 ###   @Copyright (C) 2020 SJTU. All rights reserved.
 ###################################################################
 
@@ -25,8 +25,9 @@ def main(config):
 
         from components.bank import Bank
 
-        bank = Bank(config.style_dir, config.exp_bank_dir, config.vgg_checkpoint,
-                    config.kernel_size, config.S, device)
+        bank = Bank(config.S, config.style_dir, config.exp_bank_dir, config.vgg_checkpoint,
+                    config.kernel_size, device)
+        
         bank.create_bank()
         print("Style bank creation finished.")
 

@@ -4,7 +4,7 @@
 ###   @Author: Ziang Liu
 ###   @Date: 2020-12-16 14:31:02
 ###   @LastEditors: Ziang Liu
-###   @LastEditTime: 2020-12-16 14:59:03
+###   @LastEditTime: 2020-12-21 16:25:13
 ###   @Copyright (C) 2020 SJTU. All rights reserved.
 ###################################################################
 
@@ -38,7 +38,7 @@ class Bank(object):
         self.exp_bank_dir = exp_bank_dir
         self.wave_level = 1
 
-        self.encoder, _ = GetVGGModel(vgg_dir, 21)
+        self.encoder = GetVGGModel(vgg_dir, 21)
         self.encoder = self.encoder.to(device)
         self.device = device
     
@@ -52,7 +52,6 @@ class Bank(object):
 
             bank_size = sf_patch.shape[0]
             bank_info = {'image':image_list, 'shape':shape_list, 'index':index_list, 'size':bank_size}
-            
 
             for clusters_num in self.clusters_list:
                 layers_num = self.layers_max
@@ -99,9 +98,6 @@ class Bank(object):
 
         ## create an folder inside style folder and place resized image in it
         self.style_dir = os.path.join(self.style_path, str(S)) 
-        self.style_dir_resized = self.style_dir + '/resized'
-        if not os.path.exists(self.style_dir_resized):
-            os.mkdir(self.style_dir_resized)
         
         trans = transforms.Compose([transforms.Resize(self.image_size),
                                     transforms.ToTensor()])
