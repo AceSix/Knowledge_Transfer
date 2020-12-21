@@ -4,11 +4,12 @@
 ###   @Author: Ziang Liu
 ###   @Date: 2020-12-16 14:31:03
 ###   @LastEditors: Ziang Liu
-###   @LastEditTime: 2020-12-21 15:30:10
+###   @LastEditTime: 2020-12-21 15:49:48
 ###   @Copyright (C) 2020 SJTU. All rights reserved.
 ###################################################################
 
 import os
+import numpy as np
 import joblib
 import glob
 import time
@@ -18,24 +19,35 @@ import torch.nn.functional as F
 import torch.nn as nn
 
 from .utils import reduce_dim
+from components.utils import reduce_dim
 
 
-def calc_similarity(x, y, norm=False):
+def calc_similarity(x, y, norm=True):
     x = x.reshape(x.shape[0], -1, x.shape[-1])
     y = y.reshape(y.shape[0], -1, y.shape[-1])
     if norm:
         return torch.cosine_similarity(x, y).unsqueeze(0)
     else:
         return F.conv1d(x, y, stride=1)
+    
+def batch_similarity(x, y, norm=True):
+    x = x.reshape(*x.shape[:2], -1, x.shape[-1])
+    y = y.reshape(*y.shape[:2], -1, y.shape[-1])
+    if norm:
+        return torch.cosine_similarity(x, y, dim=-2).sum(dim=0, keepdim=True)
+    else:
+        return F.conv1d(x, y, stride=1)
 
 class Swap(object):
-    def __init__(self, exp_bank_dir, device):
+    def __init__(self, exp_bank_dir, style_dir, device):
 
         self.Base = 'base'
         self.bank_dir = os.path.join(exp_bank_dir, 'S' + str(self.Base))
+        self.style_dir = style_dir
         self.exp_bank_dir = exp_bank_dir
 
         self.wave_level = 1
+        self.weight = [1,1,1,0]
 
         self.device = device
         
@@ -60,16 +72,19 @@ class Swap(object):
         self.StyleInfoPath = os.path.join(self.bankpath, f'info.pkl')
 
 
-    def wavelet_swap_LSH(self, cf, layer_num=2, stat=True, c_norm=False):
+    def wavelet_swap_LSH(self, cf, layer_num=2, stat=True, c_norm=True):
         clusters_num = self.clusters_num
         self.c_norm = c_norm
 
         t0 = time.time()
         cf_query, cf_wave, original_shape = self.__query_prepare__(cf)
+        # memory_cost1 = get_memory()
 
         filename = '1_centers.pkl'
         init_centers = self.dict[filename].to(self.device)
         cs_total, choice_total = self.__query__(cf_query, cf_wave, 1, layer_num, init_centers, '1')
+
+        # memory_cost2 = get_memory()
 
         if stat:
             mu_cf = cf_query.mean(2, keepdim=True)
@@ -78,6 +93,7 @@ class Swap(object):
             std_out = cs_total.std(2, keepdim=True)
             mid = (cf_query - mu_cf)/std_cf
             cs_total = mid*std_out+mu_out
+        # memory_cost3 = get_memory()
         
         fn_fold = nn.Fold(original_shape[-2:], kernel_size=self.kernel*2, stride=self.stride*2)
         fn_unfold = nn.Unfold(kernel_size=self.kernel*2, stride=self.stride*2)
@@ -109,10 +125,10 @@ class Swap(object):
             if mask_matrix.shape[-1]==0:
                 continue
             cf_wave_tmp = torch.matmul(cf_wave, mask_matrix)
+            cf_tmp = torch.matmul(cf, mask_matrix)
             if layer<layer_num:
                 filename = f'{path}-{c+1}_centers.pkl'
                 tmp_centers = self.dict[filename]
-                cf_tmp = torch.matmul(cf, mask_matrix)
                 cs, choice = self.__query__(cf_tmp, cf_wave_tmp, layer+1, layer_num, 
                                             tmp_centers.to(self.device), f'{path}-{c+1}')
             else:
@@ -136,12 +152,8 @@ class Swap(object):
     def __feature_swap__(self, cf_wave, sf_wave, sf_patches):
         sf_wave = sf_wave.reshape(*sf_wave.shape[:3],-1,1)
         
-        conv_out = 0
-        weight = [1,1,1,0.0]
-        for c in range(cf_wave.shape[0]):
-            if weight[c//4]==0:
-                continue
-            conv_out += calc_similarity(cf_wave[c:c+1], sf_wave[c], self.c_norm).unsqueeze(2)*(weight[c//4]*weight[c%4])
+        wave_mask = np.argwhere(np.array(self.weight)!=0).reshape(-1)
+        conv_out = calc_similarity(cf_wave.unsqueeze(1)[wave_mask].transpose(1,0), sf_wave[wave_mask].transpose(1,0), self.c_norm).unsqueeze(2)
 
         one_hots = torch.zeros_like(conv_out).to(self.device)
         one_hots.scatter_(1, conv_out.argmax(dim=1, keepdim=True), 1)
