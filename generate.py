@@ -4,7 +4,7 @@
 ###   @Author: Ziang Liu
 ###   @Date: 2020-12-21 15:19:25
 ###   @LastEditors: Ziang Liu
-###   @LastEditTime: 2020-12-21 16:39:50
+###   @LastEditTime: 2020-12-21 16:50:43
 ###   @Copyright (C) 2020 SJTU. All rights reserved.
 ###################################################################
 
@@ -45,10 +45,12 @@ def getParameters():
 
     parser.add_argument('--cuda_id', type=int, default=0)
 
+    parser.add_argument('--image_size', type=int, default=512)
     parser.add_argument('--S', type=str, default='1')
     parser.add_argument('--kernel_size', type=int, default=2)
     parser.add_argument('--stride_size', type=int, default=1)
-    parser.add_argument('--image_size', type=int, default=512)
+    parser.add_argument('--layer', type=int, default=2)
+    parser.add_argument('--cluster', type=int, default=10)
     parser.add_argument('--statistic', type=str2bool, default=True)
 
     parser.add_argument('--decoder_checkpoint', type=str, default='./logs/decoder.pth')
@@ -77,12 +79,12 @@ if __name__ == "__main__":
     
     def generate(feature, method):
         with torch.no_grad():
-            sf, _, _ = method.wavelet_swap_LSH(cf=feature, stat=config.statistic)
+            sf, _, _ = method.wavelet_swap_LSH(cf=feature, layer_num=config.layer, stat=config.statistic)
             out = decoder(sf)
         return out
     
     swap = Swap(config.bank_dir, device)
-    swap.choose_bank(kernel_size=2, clusters_num=10, S=style)
+    swap.choose_bank(kernel_size=config.kernel_size, clusters_num=config.cluster, S=style)
     swap.stride = config.stride_size
     
     for content in tqdm(contents):

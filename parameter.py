@@ -4,7 +4,7 @@
 ###   @Author: Ziang Liu
 ###   @Date: 2020-12-16 14:38:14
 ###   @LastEditors: Ziang Liu
-###   @LastEditTime: 2020-12-21 16:30:14
+###   @LastEditTime: 2020-12-21 16:46:50
 ###   @Copyright (C) 2020 SJTU. All rights reserved.
 ###################################################################
 
@@ -24,7 +24,11 @@ def getParameters():
 
     # Bank setting
     parser.add_argument('--S', type=list, default=['1'], nargs='+')
+    parser.add_argument('--style_size', type=int, default=512)
     parser.add_argument('--kernel_size', type=int, default=2)
+    parser.add_argument('--stride_size', type=int, default=1)
+    parser.add_argument('--layers_max', type=int, default=2)
+    parser.add_argument('--clusters', type=list, default=[10], nargs='+')
 
     # AE training setting
     parser.add_argument('--iter_size', type=int, default=500000)

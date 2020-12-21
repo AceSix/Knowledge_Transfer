@@ -4,7 +4,7 @@
 ###   @Author: Ziang Liu
 ###   @Date: 2020-12-16 14:31:02
 ###   @LastEditors: Ziang Liu
-###   @LastEditTime: 2020-12-21 16:25:13
+###   @LastEditTime: 2020-12-21 16:48:15
 ###   @Copyright (C) 2020 SJTU. All rights reserved.
 ###################################################################
 
@@ -25,17 +25,18 @@ from .utils import reduce_dim
 
 
 class Bank(object):
-    def __init__(self, S, style_path, exp_bank_dir, vgg_dir, kernel_size, device):
+    def __init__(self, S, style_path, exp_bank_dir, vgg_dir, image_size, kernel_size, stride_size, layers_max, clusters_list, device):
         self.S_list = S
-        self.kernel = kernel_size
-        self.layers_max = 2
-        self.clusters_list = [10]
-        self.thredhold = 0.9
-        self.image_size = 256
-        self.stride = kernel_size//2
-
         self.style_path = style_path
         self.exp_bank_dir = exp_bank_dir
+
+        self.image_size = image_size
+        self.kernel = kernel_size
+        self.stride = stride_size
+        self.layers_max = layers_max
+        self.clusters_list = clusters_list
+        self.thredhold = 0.9
+        
         self.wave_level = 1
 
         self.encoder = GetVGGModel(vgg_dir, 21)
