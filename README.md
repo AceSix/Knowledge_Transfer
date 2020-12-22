@@ -3,7 +3,7 @@
  * @Author: Ziang Liu
  * @Date: 2020-12-22 11:18:32
  * @LastEditors: Ziang Liu
- * @LastEditTime: 2020-12-22 11:29:02
+ * @LastEditTime: 2020-12-22 11:33:27
  * @Copyright (C) 2020 SJTU. All rights reserved.
 -->
 # Image Translation via Fine-grained Knowledge Transfer
@@ -26,7 +26,6 @@ In particular, backtracking experiments verify the interpretability of our metho
 ![Framework](./results/framework.PNG)
 
 ## Results
-![result1](./results/show-off.png)
 ![result2](./results/show1.png)
 ![result3](./results/show2.png)
 ![result4](./results/show3.png)
