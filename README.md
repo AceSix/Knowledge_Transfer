@@ -1,11 +1,3 @@
-<!--
- * @FilePath: \undefinede:\StyleTransfer\Knowledge_Transfer\README.md
- * @Author: Ziang Liu
- * @Date: 2020-12-22 11:18:32
- * @LastEditors: Ziang Liu
- * @LastEditTime: 2020-12-22 11:33:27
- * @Copyright (C) 2020 SJTU. All rights reserved.
--->
 # Image Translation via Fine-grained Knowledge Transfer
 Xuanhong Chen, Ziang Liu, Ting Qiu, Bingbing Ni, Naiyuan Liu, Xiwei Hu, Yuhan Li
 
@@ -26,12 +18,15 @@ In particular, backtracking experiments verify the interpretability of our metho
 ![Framework](./results/framework.PNG)
 
 ## Results
-![result2](./results/show1.png)
-![result3](./results/show2.png)
-![result4](./results/show3.png)
-![result5](./results/show4.png)
-![result6](./results/show5.png)
-![result7](./results/retrace.png)
+![result2](./results/show1.jpg)
+![result3](./results/show2.jpg)
+![result4](./results/show3.jpg)
+![result5](./results/show4.jpg)
+![result6](./results/show5.jpg)
+![result7](./results/HR-1.jpg)
+
+## Knowledge Backtracking
+![Backtracking](./results/retrace.jpg)
 
 ## Citation
 If you find this paper useful in your research, please consider citing:
