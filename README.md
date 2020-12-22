@@ -47,4 +47,4 @@ If you find this paper useful in your research, please consider citing:
 Please concat Ziang Liu(acemenethil@sjtu.edu.cn), Xuanhong Chen(xuanhongchenzju@outlook.com), Ting Qiu(776398420@sjtu.edu.cn) for questions about the details.
 
 ## Link
-Learn about our other projects [[RainNet]](https://neuralchen.github.io/RainNe), [[Sketch Generation]](https://github.com/TZYSJTU/Sketch-Generation-with-Drawing-Process-Guided-by-Vector-Flow-and-Grayscale).
+Learn about our other projects [[RainNet]](https://neuralchen.github.io/RainNet), [[Sketch Generation]](https://github.com/TZYSJTU/Sketch-Generation-with-Drawing-Process-Guided-by-Vector-Flow-and-Grayscale).
