@@ -1,5 +1,0 @@
-torch
-torchvision
-kmeans_pytorch
-glob
-tqdm

@@ -1,4 +1,5 @@
 # Image Translation via Fine-grained Knowledge Transfer
+# (The repository is under construction)
 Xuanhong Chen, Ziang Liu, Ting Qiu, Bingbing Ni, Naiyuan Liu, Xiwei Hu, Yuhan Li
 
 [[Project Website]](https://neuralchen.github.io/RainNet) [[Paper]](https://arxiv.org/abs/2012.11193)
