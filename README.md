@@ -15,7 +15,7 @@ Extensive experiments well demonstrate the effectiveness and feasibility of our 
 In particular, backtracking experiments verify the interpretability of our method.
 
 ## Framework
-![Framework](./results/framework.png)
+![Framework](./results/framework.PNG)
 
 ## Results
 ![result1](./results/show-off.png))
